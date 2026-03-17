@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Day 2026 | Project Exhibition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .cat-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-gradient text-white pt-20 pb-24 px-6 text-center shadow-xl">
+        <span class="bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">Innovation & Creativity Expo</span>
+        <h1 class="text-5xl font-extrabold mb-6 tracking-tight">Open Day <span class="text-blue-400">Project</span> Gallery</h1>
+        
+        <div class="max-w-xl mx-auto relative mb-8">
+            <input type="text" id="searchInput" onkeyup="filterProjects()" 
+                placeholder="Search projects, students, or tech..." 
+                class="w-full p-5 pl-14 rounded-2xl text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/50 shadow-2xl">
+            <i class="fas fa-lightbulb absolute left-5 top-1/2 -translate-y-1/2 text-amber-500 text-xl"></i>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-3">
+            <button onclick="setCategory('All', this)" class="cat-btn active px-6 py-2 rounded-xl border border-slate-700 font-bold text-xs uppercase transition-all">All Projects</button>
+            <button onclick="setCategory('Robotics', this)" class="cat-btn px-6 py-2 rounded-xl border border-slate-700 font-bold text-xs uppercase transition-all">Robotics</button>
+            <button onclick="setCategory('Art', this)" class="cat-btn px-6 py-2 rounded-xl border border-slate-700 font-bold text-xs uppercase transition-all">Fine Arts</button>
+            <button onclick="setCategory('Science', this)" class="cat-btn px-6 py-2 rounded-xl border border-slate-700 font-bold text-xs uppercase transition-all">Science</button>
+            <button onclick="setCategory('Software', this)" class="cat-btn px-6 py-2 rounded-xl border border-slate-700 font-bold text-xs uppercase transition-all">Software</button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 -mt-10">
+        <div id="projectGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+            </div>
+    </main>
+
+    <div id="projectModal" class="fixed inset-0 bg-slate-950/90 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white rounded-[2.5rem] max-w-4xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-6 right-6 z-20 bg-slate-100 hover:bg-red-500 hover:text-white w-12 h-12 rounded-full text-2xl transition-all">&times;</button>
+            <div id="modalBody" class="flex flex-col md:flex-row h-full overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        // PROJECT DATA: This is where you list the student projects
+        const projects = [
+            { 
+                title: "Smart Irrigation System", 
+                student: "Jean-Paul Ishimwe", 
+                dept: "Robotics", 
+                desc: "An automated system that uses soil sensors to water plants only when needed.", 
+                tools: "Arduino, C++, Soil Sensors",
+                img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=800"
+            },
+            { 
+                title: "Echoes of Kigali", 
+                student: "Marie Uwase", 
+                dept: "Art", 
+                desc: "A large-scale oil painting capturing the morning energy of the city market.", 
+                tools: "Oil Paint, Canvas",
+                img: "https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?q=80&w=800"
+            },
+            { 
+                title: "Blood-Type Matching App", 
+                student: "Kevin Rukundo", 
+                dept: "Software", 
+                desc: "A mobile app that connects hospitals with compatible blood donors in real-time.", 
+                tools: "React Native, Firebase",
+                img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=800"
+            }
+        ];
+
+        let activeCat = "All";
+
+        function setCategory(cat, btn) {
+            activeCat = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterProjects();
+        }
+
+        function filterProjects() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = projects.filter(p => {
+                const matchText = p.title.toLowerCase().includes(query) || p.student.toLowerCase().includes(query);
+                const matchCat = activeCat === "All" || p.dept === activeCat;
+                return matchText && matchCat;
+            });
+            renderProjects(filtered);
+        }
+
+        function renderProjects(data) {
+            const grid = document.getElementById('projectGrid');
+            grid.innerHTML = data.map(p => `
+                <div onclick="openModal('${p.title}')" class="project-card bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm cursor-pointer transition-all duration-300">
+                    <img src="${p.img}" class="h-56 w-full object-cover">
+                    <div class="p-6">
+                        <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg">${p.dept}</span>
+                        <h3 class="text-2xl font-bold mt-3 text-slate-900">${p.title}</h3>
+                        <p class="text-slate-500 text-sm mt-1">Created by <span class="font-bold text-slate-700">${p.student}</span></p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(title) {
+            const p = projects.find(x => x.title === title);
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+                <div class="md:w-1/2 h-72 md:h-auto">
+                    <img src="${p.img}" class="w-full h-full object-cover">
+                </div>
+                <div class="md:w-1/2 p-10 md:p-14 bg-white overflow-y-auto">
+                    <h4 class="text-blue-500 font-bold uppercase text-[10px] tracking-widest mb-2">${p.dept} Project</h4>
+                    <h2 class="text-4xl font-black mb-4 leading-tight">${p.title}</h2>
+                    <p class="text-slate-600 mb-8 leading-relaxed">${p.desc}</p>
+                    
+                    <div class="mb-10">
+                        <h4 class="text-slate-400 font-bold uppercase text-[10px] mb-3">Student Developer</h4>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center mr-3 text-slate-500"><i class="fas fa-user"></i></div>
+                            <span class="font-bold text-lg">${p.student}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                        <h4 class="text-slate-400 font-bold uppercase text-[10px] mb-3">Tools & Tech Used</h4>
+                        <p class="font-bold text-blue-600">${p.tools}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('projectModal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('projectModal').classList.add('hidden'); }
+        
+        // Initial setup
+        renderProjects(projects);
+    </script>
+</body>
+</html>
